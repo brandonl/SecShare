@@ -8,13 +8,13 @@
 #include <cstdio>
 
 ssl_client::ssl_client()
+	:	ssl_ptr(0),
+		context_ptr(0),
+		rsa_pub(0),
+		rsa_priv(0),
+		server_pub(0),
+		friend_pub(0)
 {
-	ssl_ptr = 0;
-	context_ptr = 0;
-	rsa_pub = 0;
-	rsa_priv = 0;
-	server_pub = 0;
-	friend_pub = 0;
 }
 
 
@@ -192,8 +192,7 @@ bool ssl_client::conn( const char* server_ip, unsigned short port )
 	BIO *sock_bio = BIO_new_socket( sock, BIO_NOCLOSE );
 	SSL_set_bio( ssl_ptr, sock_bio, sock_bio );
 
-	// STEP 1 Establish connection.
-	std::cout << "CLIENT STEP 1" << std::endl;
+
 	if(  SSL_connect( ssl_ptr ) <= 0 )
 	{
 		std::cerr << "Failed to connect via SSL" << std::endl;

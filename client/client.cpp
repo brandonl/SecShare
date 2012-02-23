@@ -18,15 +18,19 @@ struct client_opts
 	char *option;
 };
 
+inline void out_error( const char *exe )
+{
+	std::cerr 	<< "Usage: " << exe
+				<<" [ -server <server_address> -port" 
+				<< " <server_port> -file <filename> -operation"
+				<< " <store or retrieve> ]" << std::endl;
+}
+
 int main( int argc, char **argv )
 {
 	if( argc < 8 )
 	{
-		error:
-		std::cerr 	<< "Usage: " << argv[0] 
-					<<" [ -server <server_address> -port" 
-					<< " <server_port> -file <filename> -operation"
-					<< " <store or retrieve> ]" << std::endl;
+		out_error( argv[0] );
 		return 1;
 	}
 
@@ -77,9 +81,9 @@ int main( int argc, char **argv )
 	char s[] = "store", r[] = "retrieve";
 	{
 		if( (strcmp( s, config.option) != 0 ) && (strcmp( r, config.option ) != 0) )
-			goto error;
+			out_error( argv[0] );
 		if( !config.filename || !config.server_ip || !config.option )
-			goto error;
+			out_error( argv[0] );
 	}
 
 	{

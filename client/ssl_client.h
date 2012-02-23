@@ -6,7 +6,7 @@
 class ssl_client
 {
 	public:
-		explicit ssl_client();
+		ssl_client();
 		~ssl_client();
 		void destroy();
 		
@@ -18,15 +18,13 @@ class ssl_client
 
 	private:
 		bool handshake();
-
+		SSL *ssl_ptr;
+		SSL_CTX *context_ptr;
 		RSA *rsa_pub;
 		RSA *rsa_priv;
-
 		RSA *server_pub;
 		RSA *friend_pub;
-		SSL_CTX *context_ptr;
 		int sock;
-		SSL *ssl_ptr;
 };
 
 #endif

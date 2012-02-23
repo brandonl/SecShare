@@ -18,19 +18,17 @@ class ssl_server
 	
 		bool handshake( SSL *ssl_p );
 		bool handle_op( SSL *ssl_p );
-
+		
+		unsigned short port;
+		unsigned int max_conns;
 		SSL_CTX *context_ptr;
-		DH *dh_ptr;
-		RSA *rsa_priv;
 		RSA *rsa_pub;
-
+		RSA *rsa_priv;
+		DH *dh_ptr;
 		// client keys
 		RSA *ci_pub;
 		RSA *cj_pub;
-
-		unsigned short port;
 		int sock;
-		unsigned int max_conns;
 };
 
 #endif

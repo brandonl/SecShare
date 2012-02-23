@@ -8,18 +8,20 @@
 
 ssl_server::ssl_server( unsigned short port, unsigned int max_conns )
 	:	port(port),
-		max_conns( max_conns )
+		max_conns( max_conns ),
+		context_ptr(0),
+		rsa_pub(0),
+		rsa_priv(0),
+		dh_ptr(0),
+		ci_pub(0),
+		cj_pub(0)
 {
-	context_ptr = 0;
-	rsa_pub = 0;
-	rsa_priv = 0;
-	ci_pub = 0;
-	cj_pub = 0;
 }
 
 ssl_server::~ssl_server()
 {
-	DH_free( dh_ptr );
+	if( dh_ptr )
+		DH_free( dh_ptr );
 	if( rsa_pub )
 		RSA_free( rsa_pub );
 	if( rsa_priv )
@@ -169,8 +171,6 @@ bool ssl_server::handshake( SSL *sp )
 	// Magic numbers pre agreed upon 64
 	unsigned char *enc_chal = new unsigned char[128];
 
-	//STEP 2 Recv the encrypted challenge form user and decrypt it
-	std::cout << "SERVER STEP 2" << std::endl;
 	SSL_read( sp, enc_chal, 128 );
 
 	unsigned char dec_chal[64] = {0};
@@ -186,15 +186,10 @@ bool ssl_server::handshake( SSL *sp )
  	 * HASH PRNG CHALLENGE AND SEND BACK COMPLETING HANDSHAKE.
  	 */
 
-	//Step 3 Hash the challenege
-	std::cout << "SERVER STEP 3" << std::endl;
-
 	// 160 bits * 1bit/ 8 bytes
 	unsigned char hash[20];
 	SHA1( dec_chal, 64, hash );
 
-	// STEP 4 Sign the hash
-	std::cout << "SERVER STEP 4" << std::endl;
 	unsigned char *enc_hash = new unsigned char[ 128 ];
 	if( RSA_private_encrypt( 20, hash, enc_hash, rsa_priv, RSA_PKCS1_PADDING ) < 0 )
 	{
@@ -202,8 +197,6 @@ bool ssl_server::handshake( SSL *sp )
 		return false;
 	}
 
-	// Step 5 send the signed hash
-	std::cout << "SERVER STEP 5" << std::endl;
 	SSL_write( sp, enc_hash, 128 ); 
 
 	delete [] enc_hash;
@@ -284,8 +277,6 @@ bool ssl_server::run()
 	int client_sock;
 	pid_t pid;
 	
-	std::cout << "SERVER STEP 1" << std::endl;
-	// STEP 1 Wait for client to connect.
 
 	for(;;)
 	{
